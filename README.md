@@ -3,7 +3,7 @@ Interactive Tutorials
 
 This is the open source repository for the free interactive tutorial websites:
 
-* [learnpython.org](https://www.learnpython.org)
+* [pythontuts.ru](https://www.pythontuts.ru)
 * [learnjavaonline.org](https://www.learnjavaonline.org)
 * [learn-html.org](https://www.learn-html.org)
 * [learn-c.org](https://www.learn-c.org)
@@ -23,7 +23,7 @@ Developers will require the programming language Python https://www.python.org/ 
 The web server will locally compile and load all Markdown files into memory. The development version of the web server
 requires that you specify the domain you are working on, e.g.:
 
-    python main.py -d learnpython.org
+    python main.py -d pythontuts.ru
 
 By default, the server process will run at http://localhost:5000
 

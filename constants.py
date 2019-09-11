@@ -1,10 +1,10 @@
 IDEONE_USERNAME = "ronreiter"
 IDEONE_PASSWORD = "18132ce2b97e"
-CACHE_HOST = "direct.learnpython.org"
-DB_HOST = "direct.learnpython.org"
+CACHE_HOST = "direct.pythontuts.ru"
+DB_HOST = "direct.pythontuts.ru"
 SECRET_KEY = "this is a secret. really."
 
-LEARNPYTHON_DOMAIN = "learnpython.org"
+LEARNPYTHON_DOMAIN = "pythontuts.ru"
 LEARNJAVA_DOMAIN = "learnjavaonline.org"
 LEARNC_DOMAIN = "learn-c.org"
 LEARNCPP_DOMAIN = "learn-cpp.org"

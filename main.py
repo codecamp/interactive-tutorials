@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import json
 import re
 import markdown
@@ -11,12 +13,8 @@ import logging
 from flask import Flask, render_template, request, make_response, session
 import sys
 
-from ideone import Ideone
-
 import constants
 
-
-courses = json.load(open("courses.json"))
 
 # Flask app
 app = Flask(__name__)
@@ -44,60 +42,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
     current_domain = args.domain
 
-LANGUAGES = {
-    "en": "English",
-    "pl": "Polish",
-    "fa": "Persian",
-    "es": "Spanish",
-    "it": "Italian",
-    "de": "German",
-    "cn": "Chinese",
-    "fr": "French",
-    "pt": "Portugese",
-}
 
 tutorial_data = {}
 
 
-def run_code(code, language):
-    ideone_api = Ideone(
-        constants.IDEONE_USERNAME,
-        constants.IDEONE_PASSWORD,
-        api_url='http://ronreiter.compilers.sphere-engine.com/api/1/service.wsdl')
 
-    code = ideone_api.create_submission(code, language_name=language, std_input="")["link"]
-    result = None
-
-    while True:
-        time.sleep(1)
-        result = ideone_api.submission_details(code)
-        if result["status"] in [1,3]:
-            continue
-
-        break
-
-    data = { "code" : code }
-    if result["stderr"] or result["cmpinfo"]:
-        data["output"] = "exception"
-        if result["cmpinfo"]:
-            data["text"] = result["cmpinfo"]
-        elif result["stderr"]:
-            data["text"] = result["stderr"]
-    else:
-        data["output"] = "text"
-        data["text"] = result["output"]
-
-    return data
-
-
-def pageurl(value, language):
+def pageurl(value):
     if value.startswith("http"):
         return value
     else:
-        return urllib.quote("/%s/%s" % (language, value.replace(' ', '_')))
+        return urllib.quote("/%s" % (value.replace(' ', '_'),))
 
 
-def _wikify_one(language, pat):
+def _wikify_one(pat):
     """
     Wikifies one link.
     """
@@ -113,12 +70,12 @@ def _wikify_one(language, pat):
         if page_name == page_title:
             page_title = parts[1]
 
-    link = "<a href='%s'>%s</a>" % (pageurl(page_name, language), page_title)
+    link = "<a href='%s'>%s</a>" % (pageurl(page_name), page_title)
     return link
 
 
-def wikify(text, language):
-    text, count = WIKI_WORD_PATTERN.subn(functools.partial(_wikify_one, language), text)
+def wikify(text):
+    text, count = WIKI_WORD_PATTERN.subn(functools.partial(_wikify_one), text)
     return markdown.markdown(text.decode("utf-8")).strip()
 
 
@@ -131,8 +88,6 @@ def untab(text):
 
 
 def init_tutorials():
-    contributing_tutorials = wikify(open(os.path.join(os.path.dirname(__file__), "tutorials", "Contributing Tutorials.md")).read(), "en")
-
     for domain in os.listdir(os.path.join(os.path.dirname(__file__), "tutorials")):
         if domain.endswith(".md"):
             continue
@@ -184,23 +139,20 @@ def init_tutorials():
                 if tutorial_sections:
                     text, code, output, solution = tutorial_sections[0]
                     tutorial_dict["page_title"] = tutorial.decode("utf8")
-                    tutorial_dict["text"] = wikify(text, language)
+                    tutorial_dict["text"] = wikify(text)
                     tutorial_dict["code"] = untab(code)
                     tutorial_dict["output"] = untab(output)
                     tutorial_dict["solution"] = untab(solution)
                     tutorial_dict["is_tutorial"] = True
                 else:
                     tutorial_dict["page_title"] = ""
-                    tutorial_dict["text"] = wikify(tutorial_dict["text"], language)
+                    tutorial_dict["text"] = wikify(tutorial_dict["text"])
                     tutorial_dict["code"] = constants.DOMAIN_DATA[domain]["default_code"]
                     tutorial_dict["is_tutorial"] = False
 
                 for link in links:
                     if not link in tutorial_data[domain][language]:
                         tutorial_data[domain][language][link] = {
-                            "page_title" : link.decode("utf8"),
-                            "text": contributing_tutorials,
-                            "code": ""
                         }
 
                     if not "back_chapter" in tutorial_data[domain][language][link]:
@@ -221,10 +173,6 @@ def init_tutorials():
 init_tutorials()
 
 
-def get_languages():
-    return sorted(tutorial_data[get_host()].keys())
-
-
 def get_host():
     if is_development_mode():
         return current_domain
@@ -238,17 +186,16 @@ def is_development_mode():
 
 def get_domain_data():
     data = constants.DOMAIN_DATA[get_host()]
-    data["courses"] = courses.get(get_host())
     return data
 
 
-def get_tutorial_data(tutorial_id, language="en"):
-    logging.warn(tutorial_data[get_host()][language].keys())
-    return tutorial_data[get_host()][language][tutorial_id]
+def get_tutorial_data(tutorial_id):
+    logging.warn(tutorial_data[get_host()]["ru"].keys())
+    return tutorial_data[get_host()]["ru"][tutorial_id]
 
 
-def get_tutorial(tutorial_id, language="en"):
-    td = get_tutorial_data(tutorial_id, language)
+def get_tutorial(tutorial_id):
+    td = get_tutorial_data(tutorial_id)
 
     if not td:
         return {
@@ -265,8 +212,6 @@ def error404():
         "error404.html",
         domain_data=domain_data,
         all_data=constants.DOMAIN_DATA,
-        language_code="en",
-        languages=get_languages(),
     ), 404)
 
 
@@ -275,9 +220,8 @@ def favicon():
     return open(os.path.join(os.path.dirname(__file__), get_domain_data()["favicon"][1:]), "rb").read()
 
 @app.route("/", methods=["GET", "POST"])
-@app.route("/<language>/", methods=["GET", "POST"])
-def default_index(language="en"):
-    return index("Welcome", language)
+def default_index():
+    return index("Welcome")
 
 @app.route("/about")
 @app.route("/privacy")
@@ -288,7 +232,6 @@ def static_file():
         domain_data=get_domain_data(),
         all_data=constants.DOMAIN_DATA,
         domain_data_json=json.dumps(get_domain_data()),
-        language_code="en",
     ))
 
 @app.route("/signin")
@@ -324,27 +267,19 @@ def signup():
     session["user_id"] = str(id)
 
 
-@app.route("/<language>/progress")
-def progress(language):
-    return make_response(render_template(
-        "progress.html",
-        domain_data=get_domain_data(),
-        all_data=constants.DOMAIN_DATA,
-    ))
-
 @app.route("/<title>", methods=["GET", "POST"])
-@app.route("/<language>/<title>", methods=["GET", "POST"])
-def index(title, language="en"):
+def index(title):
+    language = "ru"
     tutorial = title.replace("_", " ").encode("utf-8")
     try:
-        current_tutorial_data = get_tutorial(tutorial, language)
+        current_tutorial_data = get_tutorial(tutorial)
     except KeyError:
         return error404()
     domain_data = get_domain_data()
     domain_data["language_code"] = language
 
     if request.method == "GET":
-        title_suffix = "Learn %s - Free Interactive %s Tutorial" % (domain_data["language_uppercase"], domain_data["language_uppercase"])
+        title_suffix = u"Изучаем %s - Бесплатный интерактивный курс по %s" % (domain_data["language_uppercase"], domain_data["language_uppercase"])
         html_title = "%s - %s" % (title.replace("_", " "), title_suffix) if title != "Welcome" else title_suffix
 
         if not "uid" in session:
@@ -353,7 +288,7 @@ def index(title, language="en"):
         uid = session["uid"]
 
         return make_response(render_template(
-            "index-python.html" if (language == "en" and domain_data["language"] == "python") else "index.html",
+            "index-python.html",
             tutorial_page=tutorial != "Welcome",
             domain_data=domain_data,
             all_data=constants.DOMAIN_DATA,
@@ -361,24 +296,9 @@ def index(title, language="en"):
             tutorial_data_json=json.dumps(current_tutorial_data),
             domain_data_json=json.dumps(domain_data),
             html_title=html_title,
-            language_code=language,
-            language_name=LANGUAGES[language],
-            languages=get_languages(),
             uid=uid,
             **current_tutorial_data
         ))
-
-    # POST method handling
-    data = run_code(request.json["code"], request.json["language"])
-
-    if "output" in current_tutorial_data and current_tutorial_data["output"] == data["output"]:
-        data["solved"] = True
-
-
-    else:
-        data["solved"] = False
-
-    return make_response(json.dumps(data))
 
 
 @app.route("/robots.txt")
