@@ -52,12 +52,13 @@ print(format_string % data)
 
 Expected Output
 ---------------
-#test_output_contains("Hello John Doe. Your current balance is $53.44.", no_output_msg= "Make sure you add the `%s` in the correct spaces to the `format_string` to meeet the Упражнение goals!")
+
+#test_output_contains("Hello John Doe. Your current balance is $53.44.", no_output_msg= "Make sure you add the `%s` in the correct spaces to the `format_string` to meeet the solution goals!")
 test_object('format_string')
 success_msg('Great work!')
 
 Solution
---------
+---------------
 
 data = ("John", "Doe", 53.44)
 format_string = "Hello %s %s. Your current balance is $%s."
