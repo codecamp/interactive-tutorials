@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 titles = {
-    'Hello World!': 'Привет, мир!',
+    'Hello, World!': 'Привет, мир!',
     'Variables and Types': 'Переменные и типы',
     'Lists': 'Списки',
     'Basic Operators': 'Основные операторы',
