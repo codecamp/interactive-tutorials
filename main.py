@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 import json
 import re
@@ -12,6 +12,8 @@ import logging
 
 from flask import Flask, render_template, request, make_response, session
 import sys
+
+from translation import titles as i18n_titles
 
 import constants
 
@@ -223,49 +225,6 @@ def favicon():
 def default_index():
     return index("Welcome")
 
-@app.route("/about")
-@app.route("/privacy")
-@app.route("/tos")
-def static_file():
-    return make_response(render_template(
-        request.path.strip("/") + ".html",
-        domain_data=get_domain_data(),
-        all_data=constants.DOMAIN_DATA,
-        domain_data_json=json.dumps(get_domain_data()),
-    ))
-
-@app.route("/signin")
-def signin():
-    email = request.args.get("email", None)
-    password = request.args.get("password", None)
-    user = users.findOne({"email": email})
-
-    if user:
-        session["user_id"] = str(user._id)
-        return make_response(json.dumps({"status": "error", "error": "no_user"}))
-
-@app.route("/signup")
-def signup():
-    email = request.args.get("email", None)
-    password = request.args.get("password", None)
-    confirm = request.args.get("confirm", None)
-
-    if not email or not password or not confirm:
-        return make_response(json.dumps({"status": "error", "error": "missing_field"}))
-
-    if not re.findall("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$", email):
-        return make_response(json.dumps({"status": "error", "error": "invalid_email"}))
-
-    if password != confirm:
-        return make_response(json.dumps({"status": "error", "error": "passwords_dont_match"}))
-
-    id = users.insert({
-        "email": email,
-        "password": password,
-    })
-
-    session["user_id"] = str(id)
-
 
 @app.route("/<title>", methods=["GET", "POST"])
 def index(title):
@@ -280,7 +239,7 @@ def index(title):
 
     if request.method == "GET":
         title_suffix = u"Изучаем %s - Бесплатный интерактивный курс по %s" % (domain_data["language_uppercase"], domain_data["language_uppercase"])
-        html_title = "%s - %s" % (title.replace("_", " "), title_suffix) if title != "Welcome" else title_suffix
+        html_title = "%s - %s" % (i18n_titles.get(title.replace("_", " ")).decode('utf8'), title_suffix) if title != "Welcome" else title_suffix
 
         if not "uid" in session:
             session["uid"] = os.urandom(16).encode("hex")
@@ -296,6 +255,7 @@ def index(title):
             tutorial_data_json=json.dumps(current_tutorial_data),
             domain_data_json=json.dumps(domain_data),
             html_title=html_title,
+            i18n_titles=i18n_titles,
             uid=uid,
             **current_tutorial_data
         ))

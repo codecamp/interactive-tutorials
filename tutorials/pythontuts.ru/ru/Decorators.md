@@ -1,7 +1,7 @@
 Tutorial
 --------
 
-Декораторы позволяют вам вносить простые изменения в вызываемые объекты, такие как  [функции](http://www.pythontuts.org/en/Functions ""), [методы, или классы](http://www.pythontuts.org/en/Classes%20and%20Objects ""). Мы разберемся с функциями в этом уроке. Синтаксис
+Декораторы позволяют вам вносить простые изменения в вызываемые объекты, такие как  [функции](/Functions ""), [методы, или классы](/Classes%20and%20Objects ""). Мы разберемся с функциями в этом уроке. Синтаксис
 
     @decorator
     def functions(arg):
@@ -61,12 +61,12 @@ Tutorial
                 return multiplier * old_function(*args, **kwds)
             return new_function
         return multiply_generator # it returns the new generator
-    
+
     # Usage
     @multiply(3) # multiply is not a generator, but multiply(3) is
     def return_num(num):
         return num
-        
+
     # Now return_num is decorated and reassigned into itself
     return_num(5) # should return 15
 

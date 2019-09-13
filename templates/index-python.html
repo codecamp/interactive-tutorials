@@ -38,7 +38,7 @@
 
             <span id="inner-text">{% autoescape off %}
                 {% if page_title %}
-                <h1>{{ page_title }}</h1>
+                <h1>{{ i18n_titles.get(page_title).decode('utf-8') }}</h1>
                 <hr/>
                 {% endif %}
                 {{ text }}
@@ -48,9 +48,9 @@
             {% if page_title %}
             <div data-datacamp-exercise data-lang="python" data-height="400">
               <code data-type="pre-exercise-code"></code>
-              <code data-type="sample-code">{{tutorial_data.code}}</code>
-              <code data-type="solution">{{tutorial_data.solution}}</code>
-              <code data-type="sct">{{tutorial_data.output}}</code>
+              <code data-type="sample-code">{{tutorial_data.code.decode('utf-8')}}</code>
+              <code data-type="solution">{{tutorial_data.solution.decode('utf-8')}}</code>
+              <code data-type="sct">{{tutorial_data.output.decode('utf-8')}}</code>
             </div>
             {% endif %}
 

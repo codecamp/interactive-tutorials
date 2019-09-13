@@ -22,10 +22,6 @@
 - [Словари](/Dictionaries)
 - [Модули и пакеты](/Modules_and_Packages)
 
-### Уроки по науке о данных
-- [Numpy массивы](/Numpy_Arrays)
-- [Основы Pandas](/Pandas_Basics)
-
 ### Продвинутые уроки
 
 - [Генераторы](/Generators)
