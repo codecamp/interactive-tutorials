@@ -26,5 +26,5 @@ titles = {
     'Code Introspection': 'Инспекция кода',
     'Closures': 'Замыкания',
     'Decorators': 'Декораторы',
-    'Map,  Filter, Reduce': 'Map, Filter, Reduce',
+    'Map, Filter, Reduce': 'Map, Filter, Reduce',
 }
