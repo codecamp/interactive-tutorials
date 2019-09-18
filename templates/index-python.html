@@ -28,7 +28,7 @@
               {% if back_chapter %}
               <li><a href="/{{ back_chapter }}">{{ back_chapter }}</a> <span class="divider mr-1">/</span></li>
               {% endif %}
-              <li class="active">{{ page_title }}</li>
+              <li class="active">{{ i18n_titles.get(page_title).decode('utf-8') }}</li>
             </ul>
             {% endif %}
 
